@@ -136,3 +136,33 @@ class EvaluationTests < Test::Unit::TestCase
     assert_equal(0.5, performance2.value)
   end
 end
+
+class ProblemTests < Test::Unit::TestCase
+  def test_merge
+    problem1 = Problem.from_array(
+      [[1,2,3], [1.5, 4, 3.1], [2.0, 6, 3.2]],
+      [1, 0, 1]
+    )
+    problem2 = Problem.from_array(
+      [[1,2,3,4]], [1]
+    )
+    # problems with differing numbers of features cannot be merged
+    assert_raise(ArgumentError) { problem1.merge(problem2) }
+    problem3 = Problem.from_array(
+      [[1,2,3], [1.5, 4, 3.1], [2.0, 6, 3.2]],
+      [1, 0, 1]
+    )
+    # confirm merging of two problems
+    assert_nothing_raised(ArgumentError) { problem1.merge(problem3) }
+    problem4 = problem1.merge(problem3)
+    assert_equal(6, problem4.size)
+    [[1,2,3], [1.5, 4, 3.1], [2.0, 6, 3.2], [1,2,3], [1.5, 4, 3.1], [2.0, 6, 3.2]].each_with_index do |instance, i|
+      instance.each_with_index do |v, j|
+        assert_equal(v, problem4.x[i][j].value)
+      end
+    end
+    [1,0,1,1,0,1].each_with_index do |v, i|
+      assert_equal(v, problem4.y[i])
+    end
+  end
+end
