@@ -1,0 +1,363 @@
+#!/usr/bin/env jruby
+
+#
+# A loose equivalent of the svm_toy applet which is 
+# distributed with libsvm.
+#
+# Copyright (c) Peter Lane, 2011.
+#
+
+require "java"
+require "svm_toolkit"
+
+import "java.awt.BorderLayout"
+import "java.awt.Color"
+import "java.awt.Dimension"
+import "java.awt.GridLayout"
+import "java.awt.event.ActionListener"
+import "java.awt.event.MouseListener"
+
+import "javax.swing.Box"
+import "javax.swing.BoxLayout"
+import "javax.swing.JButton"
+import "javax.swing.JComboBox"
+import "javax.swing.JFrame"
+import "javax.swing.JLabel"
+import "javax.swing.JOptionPane"
+import "javax.swing.JPanel"
+import "javax.swing.JScrollPane"
+import "javax.swing.JSpinner"
+import "javax.swing.JTextField"
+import "javax.swing.SpinnerNumberModel"
+import "javax.swing.WindowConstants"
+import "javax.swing.border.TitledBorder"
+
+class Display < JPanel
+  Point = Struct.new(:x, :y, :colour)
+
+  class MyMouseListener
+    include MouseListener
+    
+    def initialize parent
+      @parent = parent
+    end
+
+    def mouseEntered e; end
+    def mouseExited e; end
+    def mousePressed e; end
+    def mouseReleased e; end
+
+    def mouseClicked e
+      @parent.clicked(e.x, e.y)
+    end
+  end
+
+  attr_accessor :colour # current label/colour of point to show
+
+  Width = 800
+  Height = 600
+
+  def initialize
+    super()
+    
+    self.preferred_size = Dimension.new(Width, Height)
+    add_mouse_listener MyMouseListener.new(self)
+
+    @points = []
+    @support_vectors = []
+    @colour = Color.blue
+  end
+
+  def paint g
+    super
+    
+    if @buffer.nil?
+      g.background = Color.lightGray
+      g.clear_rect(0, 0, Width, Height)
+    else
+      g.draw_image(@buffer, 0, 0, self)
+    end
+
+    @support_vectors.each do |point|
+      g.color = Color.yellow
+      g.fill_oval(point.x-7, point.y-7, 14, 14)
+    end
+
+    @points.each do |point|
+      g.color =  point.colour
+      g.fill_oval(point.x-3, point.y-3, 6, 6)
+    end
+  end
+
+  def clear
+    @points.clear
+    @support_vectors.clear
+    @buffer = nil
+    repaint
+  end
+
+  def clicked(x, y)
+    if x < Width and y < Height
+      @points << Point.new(x, y, @colour)
+      repaint
+    end
+  end
+
+  def train(kernel, cost, gamma, degree)
+    return if @points.empty?
+    labels = []
+    instances = []
+    @points.each do |point|
+      if point.colour == Color::blue
+        labels << 1
+      else 
+        labels << 0 
+      end
+      instances << [point.x / Width.to_f, point.y / Height.to_f]
+    end
+    problem = Problem.from_array(instances, labels)
+    param = Parameter.new(
+      :svm_type => Parameter::C_SVC,
+      :kernel_type => kernel,
+      :cost => cost,
+      :gamma => gamma,
+      :degree => degree
+    )
+    model = Svm.svm_train(problem, param)
+
+    buffer = self.create_image(Width, Height)
+    buffer_gc = buffer.graphics
+    window_gc = self.graphics
+    instance = Node[2].new
+    instance[0] = Node.new(0, 0)
+    instance[1] = Node.new(1, 0)
+    Width.times do |i|
+      if i < 498 # draw a progress line
+        buffer_gc.color = Color::red
+        buffer_gc.draw_line(i+1, 0, i+1, Height-1)
+        window_gc.color = Color::red
+        window_gc.draw_line(i+1, 0, i+1, Height-1)
+      end
+      Height.times do |j|
+        instance[0].value = i / Width.to_f
+        instance[1].value = j / Height.to_f
+        prediction = Svm.svm_predict(model, instance)
+        buffer_gc.color = if prediction.zero?
+                            Color.new(100, 200, 100)
+                          else
+                            Color.new(100, 100, 200)
+                          end
+        buffer_gc.draw_line(i, j, i, j)
+        window_gc.color = if prediction.zero?
+                            Color.new(100, 200, 100)
+                          else
+                            Color.new(100, 100, 200)
+                          end
+        window_gc.draw_line(i, j, i, j)
+      end
+    end
+    @buffer = buffer
+    @support_vectors = []
+    model.support_vector_indices.each do |index|
+      @support_vectors << @points[index]
+    end
+
+    repaint
+  end
+end
+
+class DemoFrame < JFrame
+  class LabelListener
+    include ActionListener
+
+    def initialize(display, box)
+      @display = display
+      @box = box
+    end
+
+    def actionPerformed e
+      @display.colour = if @box.selected_item == "blue" then 
+                          Color.blue
+                        else
+                          Color.green
+                        end
+    end
+  end
+
+  class KernelChoiceListener
+    include ActionListener
+
+    def initialize(kernel_choice, gamma_choice, degree_choice)
+      @kernel_choice = kernel_choice
+      @gamma_choice = gamma_choice
+      @degree_choice = degree_choice
+    end
+
+    def actionPerformed e
+      case @kernel_choice.selected_item
+      when "linear"
+        @gamma_choice.enabled = false
+        @degree_choice.enabled = false
+      when "polynomial"
+        @gamma_choice.enabled = false
+        @degree_choice.enabled = true
+      when "RBF", "sigmoid"
+        @gamma_choice.enabled = true
+        @degree_choice.enabled = false
+      end
+    end
+  end
+
+  def initialize
+    super("Support-Vector Machines: Demonstration")
+    self.setSize(700, 400)
+
+    @display_panel = Display.new
+    add(JScrollPane.new(@display_panel))
+    add(createLabelButtons, BorderLayout::NORTH)
+    add(createTrainButtons, BorderLayout::EAST)
+    add(createHelpLine, BorderLayout::SOUTH)
+
+    self.setDefaultCloseOperation(WindowConstants::DISPOSE_ON_CLOSE)
+  end
+
+  def createHelpLine
+    JLabel.new(<<-END)
+<html><body>
+Select a class colour and click on main panel to define instances.<br>
+Choose kernel type and parameter settings for training.
+</body></html>
+END
+  end
+
+  def createLabelButtons
+    panel = JPanel.new
+    panel.layout = BorderLayout.new
+
+    combo_box = JComboBox.new 
+    ["blue", "green"].each do |item|
+      combo_box.add_item item
+    end
+    combo_box.add_action_listener LabelListener.new(@display_panel, combo_box)
+
+    clear_button = JButton.new "clear"
+    clear_button.add_action_listener do
+      @display_panel.clear
+    end
+
+    @message = JLabel.new
+    
+    pane = JPanel.new
+    pane.add JLabel.new("Class:")
+    pane.add combo_box
+    pane.add clear_button
+
+    panel.add(pane, BorderLayout::WEST)
+    panel.add @message
+
+    return panel
+  end
+
+  def createTrainButtons
+    kernel_choice = JComboBox.new
+    ["linear", "RBF", "polynomial", "sigmoid"].each do |item|
+      kernel_choice.add_item item
+    end
+    cost_choice = JTextField.new(10)
+    cost_choice.text = "1.0"
+    cost_choice.setMaximumSize(cost_choice.getPreferredSize)
+    gamma_choice = JTextField.new(10)
+    gamma_choice.text = "1.0"
+    gamma_choice.setMaximumSize(gamma_choice.getPreferredSize)
+    gamma_choice.enabled = false
+    degree_choice = JSpinner.new(SpinnerNumberModel.new(1, 0, 30, 1))
+    degree_choice.enabled = false
+    kernel_choice.add_action_listener KernelChoiceListener.new(kernel_choice, gamma_choice, degree_choice)
+
+    run_button = JButton.new "Train"
+    run_button.add_action_listener do
+      # -- kernel
+      case kernel_choice.selected_item
+      when "linear"
+        kernel = Parameter::LINEAR
+      when "RBF"
+        kernel = Parameter::RBF
+      when "polynomial"
+        kernel = Parameter::POLY
+      when "sigmoid"
+        kernel = Parameter::SIGMOID
+      end
+      # -- cost
+      begin
+        cost = Float cost_choice.text
+      rescue ArgumentError
+        JOptionPane.show_message_dialog(self, 
+                                        "Cost value #{cost_choice.text} is not a number", 
+                                        "Error in cost value",
+                                        JOptionPane::ERROR_MESSAGE)
+        return
+      end
+      # -- gamma
+      begin
+        gamma = Float gamma_choice.text
+      rescue ArgumentError
+        JOptionPane.show_message_dialog(self, 
+                                        "Gamma value #{gamma_choice.text} is not a number", 
+                                        "Error in gamma value",
+                                        JOptionPane::ERROR_MESSAGE)
+        return
+      end
+      # -- degree
+      degree = degree_choice.model.number
+      #
+      @message.text = "Training and updating display: Please wait"
+      swt = MySwingWorker.new
+      swt.task = lambda do 
+        run_button.enabled = false
+        @display_panel.train(kernel, cost, gamma, degree) 
+        @message.text = ""
+        run_button.enabled = true
+      end
+      swt.execute
+    end
+
+    panel = JPanel.new
+    panel.border = TitledBorder.new("Training options")
+    panel.layout = GridLayout.new(5, 2, 10, 10)
+
+    panel.add JLabel.new("Kernel type:", JLabel::RIGHT)
+    panel.add kernel_choice
+    panel.add JLabel.new("Cost:", JLabel::RIGHT)
+    panel.add cost_choice
+    panel.add JLabel.new("Gamma:", JLabel::RIGHT)
+    panel.add gamma_choice
+    panel.add JLabel.new("Degree:", JLabel::RIGHT)
+    panel.add degree_choice
+    panel.add JLabel.new ""
+    panel.add run_button
+
+    pane = JPanel.new
+    pane.add panel
+    return pane
+  end
+
+  class MySwingWorker < javax.swing.SwingWorker
+    attr_accessor :task
+    def doInBackground
+      @task.call
+    end
+  end
+end
+
+javax.swing::UIManager.getInstalledLookAndFeels.each do |info|
+  begin
+    if "Nimbus" == info.name
+      javax.swing::UIManager.setLookAndFeel(info.className)
+    end
+  rescue Exception
+    # ignore exceptions
+  end
+end
+
+DemoFrame.new.visible = true
+
