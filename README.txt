@@ -8,6 +8,14 @@ visualisations.  Training/testing of models can use a variety of built-in or
 user-defined evaluation methods, including overall accuracy, geometric mean,
 precision and recall.
 
+= Install =
+
+This software works with JRuby, in 1.9 mode.
+
+To install:
+
+$ jruby -S gem install svm_toolkit
+
 = Features =
 
 == Current ==
@@ -30,10 +38,6 @@ precision and recall.
 . support for sampling, SMOTE and related processes (perhaps in separate package)
 . active-learning
 . make grid search use multiple threads.
-
-= Ruby Version =
-
-This software works with JRuby, in 1.9 mode.
 
 = License =
 
