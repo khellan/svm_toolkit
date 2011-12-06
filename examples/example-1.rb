@@ -35,7 +35,7 @@ Instances = [
 
 # create some arbitrary train/test split
 TrainingSet = Problem.from_array(Instances.slice(0, 10), Labels.slice(0, 10))
-TestSet     = Problem.from_array(Instances.slice(10, 14), Labels.slice(10, 14))
+TestSet     = Problem.from_array(Instances.slice(10, 4), Labels.slice(10, 4))
 
 # Iterate over each kernel type
 Parameter.kernels.each do |kernel|

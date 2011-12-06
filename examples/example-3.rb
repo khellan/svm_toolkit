@@ -48,8 +48,8 @@ end
 
 Dataset = read_data "letter-recognition.data"
 puts "Read #{Dataset.size} items"
-TrainingData = make_problem Dataset[0..2000]
-CrossSet = make_problem Dataset[2000..3000]
+TrainingData = make_problem Dataset[0...2000]
+CrossSet = make_problem Dataset[2000...3000]
 TestSet = make_problem Dataset[3000..-1]
 
 Costs = [-5, -3, -1, 0, 1, 3, 5, 8, 10, 13, 15].collect {|n| 2**n}
