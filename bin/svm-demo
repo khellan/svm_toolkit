@@ -11,27 +11,19 @@ require "java"
 require "svm_toolkit"
 include SvmToolkit
 
-import "java.awt.BorderLayout"
-import "java.awt.Color"
-import "java.awt.Dimension"
-import "java.awt.GridLayout"
-import "java.awt.event.ActionListener"
-import "java.awt.event.MouseListener"
+["BorderLayout", "Color", 
+ "Dimension", "GridLayout", 
+ "event.ActionListener", "event.MouseListener"
+].each do |i|
+  import "java.awt.#{i}"
+end
 
-import "javax.swing.Box"
-import "javax.swing.BoxLayout"
-import "javax.swing.JButton"
-import "javax.swing.JComboBox"
-import "javax.swing.JFrame"
-import "javax.swing.JLabel"
-import "javax.swing.JOptionPane"
-import "javax.swing.JPanel"
-import "javax.swing.JScrollPane"
-import "javax.swing.JSpinner"
-import "javax.swing.JTextField"
-import "javax.swing.SpinnerNumberModel"
-import "javax.swing.WindowConstants"
-import "javax.swing.border.TitledBorder"
+["Box", "BoxLayout", "JButton", "JComboBox", "JFrame", "JLabel",
+ "JOptionPane", "JPanel", "JScrollPane", "JSpinner", "JTextField",
+ "SpinnerNumberModel", "WindowConstants", "border.TitledBorder"
+].each do |i|
+  import "javax.swing.#{i}"
+end
 
 class Display < JPanel
   Point = Struct.new(:x, :y, :colour)
@@ -104,6 +96,14 @@ class Display < JPanel
     end
   end
 
+  def background_colour prediction
+    if prediction.zero?
+      Color.new(100, 200, 100)
+    else
+      Color.new(100, 100, 200)
+    end
+  end
+
   def train(kernel, cost, gamma, degree)
     return if @points.empty?
     labels = []
@@ -143,17 +143,9 @@ class Display < JPanel
         instance[0].value = i / Width.to_f
         instance[1].value = j / Height.to_f
         prediction = Svm.svm_predict(model, instance)
-        buffer_gc.color = if prediction.zero?
-                            Color.new(100, 200, 100)
-                          else
-                            Color.new(100, 100, 200)
-                          end
+        buffer_gc.color = background_colour prediction
         buffer_gc.draw_line(i, j, i, j)
-        window_gc.color = if prediction.zero?
-                            Color.new(100, 200, 100)
-                          else
-                            Color.new(100, 100, 200)
-                          end
+        window_gc.color = background_colour prediction
         window_gc.draw_line(i, j, i, j)
       end
     end

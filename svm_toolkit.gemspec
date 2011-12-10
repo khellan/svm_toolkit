@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.name = "svm_toolkit"
   s.platform = Gem::Platform::CURRENT
   s.author = "Peter Lane"
-  s.version = "1.0.1"
+  s.version = "1.0.2"
   s.email = "peter.lane@bcs.org.uk"
   s.homepage = "http://rubyforscientificresearch.blogspot.com/search/label/svm_toolkit"
   s.summary = "A JRuby wrapper around the libsvm library, with additional functionality."
