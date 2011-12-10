@@ -685,7 +685,7 @@ module SvmToolkit
     private
     class ContourDisplay < javax.swing.JFrame
       def initialize(xs, ys, zs)
-        super ("Cross-Validation Performance")
+        super("Cross-Validation Performance")
         self.setSize(500, 400)
 
         cxs = Java::double[][ys.size].new
