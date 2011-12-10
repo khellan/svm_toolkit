@@ -9,6 +9,7 @@
 
 require "java"
 require "svm_toolkit"
+include SvmToolkit
 
 import "java.awt.BorderLayout"
 import "java.awt.Color"

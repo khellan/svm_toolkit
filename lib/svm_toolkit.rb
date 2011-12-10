@@ -21,7 +21,7 @@ require "java"
 require "libsvm"
 require "PlotPackage"
 
-require_relative "evaluators"
+require "evaluators"
 
 module SvmToolkit
 
