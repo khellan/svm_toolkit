@@ -1,13 +1,16 @@
-<html>
-<head>
-<title>SvmToolkit</title>
-<style type="text/css">
-  body {background-color:#98afc7}
-</style>
-</head>
-
-<body>
-  <h1>SvmToolkit</h1>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>JRuby Library: SvmToolkit</title>
+    <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>JRuby Library: SvmToolkit</h1>
+    </div>
+    <div id="content">
+      <div id="right">
 
   <p>
   This JRuby library is a wrapper around a Java implementation of 
@@ -17,43 +20,36 @@
   Features:
   <ol>
     <li>Ruby interface to create problem sets and models.</li>
-    <li>Evaluate models using different measures, such as accuracy, geometric mean, precision and recall.</li>
+    <li>Evaluate models using different performance measures, such as accuracy, geometric mean, precision and recall.</li>
     <li>Built-in grid search to select an RBF model.</li>
     <li>Contour plot of grid-search output.</li>
     <li>Fully graphical demonstration program.</li>
   </ol>
   </p>
+        
+        <h2>Installation</h2>
 
-  <h2>Install</h2>
+        <p>SvmToolkit is implemented in and requires 
+        <a href="http://jruby.org"</a>JRuby</a>.
+      </p>
 
-  <p>SvmToolkit is implemented in and requires 
-  <a href="http://jruby.org"</a>JRuby</a>.
-  </p>
+      <p>Install through rubygems:
+      <tt>jruby -S gem install svm_toolkit</tt>
+      </p>
 
-  <p>Install through rubygems:
-  <tt>jruby -S gem install svm_toolkit</tt>
-  </p>
-
-  <p><a href="http://github.com/petercrlane/svm_toolkit">Source code</a> 
-  is on github.</p>
-
-  <h2>Demo Program</h2>
-
-  <p>
-  When installed through rubygems, the program <tt>svm-demo</tt> is placed 
-  in the jruby path.  Running <tt>svm-demo</tt> opens a simple graphical 
-  frame, allowing the user to place instances, select a kernel type and 
-  parameters, visualise the decision boundary and highlight the support 
-  vectors.  (This demo program is 
-  based on the libsvm demo applet, but reimplemented in jruby.)
-  </p>
-
-  <img src="demo.jpg" alt="Demonstration program of libsvm" 
-       height="300" /> 
-
-  <h2>Example Script</h2>
-
-  <p>
+        <h2>Demo Program</h2>
+        <p>
+  When installed through rubygems, the program <tt>svm-demo</tt> is placed in
+  the jruby path.  Running <tt>svm-demo</tt> opens a simple graphical frame,
+  allowing the user to place instances, select a kernel type and parameters,
+  visualise the decision boundary and highlight the support vectors.  (This
+  demo program is based on the libsvm demo applet, but reimplemented in jruby.)
+</p>
+        <p>
+        <center><img src="demo.jpg" height="300" alt="Demonstration program of libsvm"/></center>
+        </p>
+        <h2>Example Script</h2>
+        <p>
 <pre><tt><i><font color="#9A1900"># Example using svm_toolkit to classify letters,</font></i>
 <i><font color="#9A1900"># using UCI's letter-recognition example.</font></i>
 <i><font color="#9A1900">#</font></i>
@@ -103,8 +99,38 @@ best_model <font color="#990000">=</font> Svm<font color="#990000">.</font>cross
 puts <font color="#FF0000">"Test set has #{best_model.evaluate_dataset(TestSet, :evaluator =&gt; Evaluator::GeometricMean)}"</font>
 best_model<font color="#990000">.</font>save <font color="#FF0000">"best.dat"</font>
 </tt></pre>
-  </p>
+        </p>
+      </div>
 
-</body>
+      <div id="left">
+
+        <div class="box">
+          <h2>Links:</h2>
+          <ul>
+            <li><a href="http://jruby.org">JRuby</a></li>
+            <li><a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">libsvm</a></li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h2>Download:</h2>
+          <ul>
+            <li><a href="https://rubygems.org/gems/svm_toolkit">Rubygems</a> to install</li>
+            <li><a href="http://github.com/petercrlane/svm_toolkit">Source</a> on Github</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h2>About</h2>
+          <p>
+          This library was written by <a href="https://github.com/petercrlane">Peter Lane</a>.
+          </p>
+          <p>
+          Released under the <a href="http://www.gnu.org/copyleft/gpl.html">GPL</a>.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </body>
 </html>
-
