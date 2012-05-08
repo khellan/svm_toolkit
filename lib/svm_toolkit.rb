@@ -746,9 +746,3 @@ module SvmToolkit
   end
 end
 
-module Math
-  def Math.log2 n
-    log(n) / log(2)
-  end
-end
-
