@@ -357,7 +357,7 @@ module SvmToolkit
     # Read in a problem definition from a file. 
     # Input:
     # * +filename+, the name of the file
-    # * +format+, either Svm::SvmLight (default) or Svm::Csv
+    # * +format+, either Svm::SvmLight (default), Svm::Csv or Svm::Arff
     # Raises ArgumentError if there is any error in format.
     #
     def self.from_file(filename, format = SvmLight)
