@@ -44,7 +44,7 @@ $ jruby -S gem install svm\_toolkit
 == License 
 
 svm\_toolkit is free software: you can redistribute it and/or modify
-it under the terms of the Open Works License[http://owl.apotheon.org]
+it under the terms of the (Open Works License)[http://owl.apotheon.org]
 
 See file 'LICENSE.txt' for more details.
 
