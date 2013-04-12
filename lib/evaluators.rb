@@ -168,4 +168,51 @@ module Evaluator
     end
   end
 
+  # Computes the Matthews correlation coefficient of the model
+  # The Matthews correlation coefficient is an indicator for
+  # the similarity between the actual and predicted binary
+  # classification.
+  # More information is available at:
+  # http://en.wikipedia.org/wiki/Matthews_correlation_coefficient
+  puts 'Making Evaluator.MatthewsCorrelationCoefficient'
+  def Evaluator.MatthewsCorrelationCoefficient positive_label
+    Class.new do
+      @@positive_label = positive_label
+
+      def initialize
+        @true_positives = 0
+        @true_negatives = 0
+        @false_positives = 0
+        @false_negatives = 0
+      end
+
+      def add_result(actual, prediction)
+        case [actual == @@positive_label, prediction == @@positive_label]
+          when [true, true]
+            @true_positives += 1
+          when [true, false]
+            @false_negatives += 1
+          when [false, false]
+            @true_negatives += 1
+          when [false, true]
+            @false_positives += 1
+        end
+      end
+
+      def value
+        (@true_positives * @true_negatives - @false_positives * @false_negatives) /
+            Math.sqrt(
+                (@true_positives + @false_positives) * (@true_positives + @false_negatives) *
+                    (@true_negatives + @false_positives) * (@true_negatives + @false_negatives))
+      end
+
+      def better_than? other
+        other.nil? or self.value < other.value
+      end
+
+      def to_s
+        "Matthews correlation coefficient: #{value}"
+      end
+    end
+  end
 end

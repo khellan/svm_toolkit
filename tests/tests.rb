@@ -136,6 +136,22 @@ class EvaluationTests < Test::Unit::TestCase
     # 1 correct out of the 2 predicted 1s
     assert_equal(0.5, performance2.value)
   end
+
+  def test_matthews
+    performance = Evaluator::MatthewsCorrelationCoefficient(1).new
+    performance.add_result(0, 0)
+    assert(performance.value.nan?)
+    performance.add_result(0, 1)
+    assert(performance.value.nan?)
+    performance.add_result(1, 0)
+    assert_equal(-0.5, performance.value)
+    performance.add_result(1, 1)
+    assert_equal(0.0, performance.value)
+    performance.add_result(1, 1)
+    assert(0.167 - performance.value < 0.001)
+    performance.add_result(0, 0)
+    assert(0.333 - performance.value < 0.001)
+  end
 end
 
 class ProblemTests < Test::Unit::TestCase
