@@ -174,7 +174,6 @@ module Evaluator
   # classification.
   # More information is available at:
   # http://en.wikipedia.org/wiki/Matthews_correlation_coefficient
-  puts 'Making Evaluator.MatthewsCorrelationCoefficient'
   def Evaluator.MatthewsCorrelationCoefficient positive_label
     Class.new do
       @@positive_label = positive_label
